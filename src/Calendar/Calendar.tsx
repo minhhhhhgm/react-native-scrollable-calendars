@@ -34,7 +34,7 @@ export interface CalendarProps {
   renderHeader?: any;
   autoSelect?: 'firstday' | 'markedDate';
   onMonthChange?: (date: string) => void;
-  style?: ViewStyle;
+  style?: ViewStyle | ViewStyle[];
 }
 
 export interface CalendarRef {
@@ -159,25 +159,28 @@ function _Calendar(
     const currentIndex = months.indexOf(_month);
     if (dayjs(day).isBefore(_month, 'month') && currentIndex - 1 >= 0) {
       _META[id].disableAutoSelect = true;
-      setCurrentMonth(months[currentIndex - 1]);
       _META[id].month = months[currentIndex - 1];
+      setCurrentMonth(months[currentIndex - 1]);
       carousel.current?.snapToPrev(true, false);
     } else if (
       dayjs(day).isAfter(_month, 'month') &&
       currentIndex + 1 < months.length
     ) {
       _META[id].disableAutoSelect = true;
-      setCurrentMonth(months[currentIndex + 1]);
       _META[id].month = months[currentIndex + 1];
+      setCurrentMonth(months[currentIndex + 1]);
       carousel.current?.snapToNext(true, false);
     }
+    _META[id].month = _month;
     onSelectDate && onSelectDate(day as any, EVENT_SOURCE.DAY_PRESS as any);
   };
 
   const onScrollIndexChanged = debounce((index: number) => {
     const month = months[index];
+    _META[id].month = month;
     setCurrentMonth(month);
     onMonthChange && onMonthChange(month);
+
     if (autoSelect) {
       if (_META[id].disableAutoSelect) {
         _META[id].disableAutoSelect = false;

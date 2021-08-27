@@ -40,7 +40,7 @@ export interface WeekCalendarProps {
   autoSelect?: 'firstday' | 'markedDate';
   onSelectDate: (date: string | Date, source: EVENT_SOURCE) => void;
   onWeekChange?: (date: string) => void;
-  style?: ViewStyle;
+  style?: ViewStyle | ViewStyle[];
 }
 
 export interface WeekCalendarRef {

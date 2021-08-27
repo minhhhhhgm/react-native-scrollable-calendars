@@ -111,3 +111,12 @@ export const compareProps = (a: any, b: any, keys: string[]) => {
   }
   return isEqual(a, b);
 };
+
+export const sortMarkedDates = (obj) => {
+  const today = dayjs().format('YYYY-MM-DD');
+  const days = Object.keys(obj);
+  if (!days.includes(today)) {
+    days.push(today);
+  }
+  return days.sort((a, b) => dayjs(a).diff(b));
+};

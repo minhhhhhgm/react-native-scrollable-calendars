@@ -1,6 +1,6 @@
-import React, { forwardRef, useEffect, useRef, useState } from 'react';
+import React, { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 import { memo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, ViewStyle } from 'react-native';
 import Carousel from '../Carousel/Carousel';
 import { dayjs } from '../Utils/time';
 import { wWidth } from '../Utils/utils';
@@ -14,7 +14,9 @@ import {
   getDaysInMonth,
   getDaysOfWeek,
   getMonthRange,
+  sortMarkedDates,
 } from './util';
+import debounce from 'lodash/debounce';
 
 export interface CalendarProps {
   passRange?: number;
@@ -32,6 +34,7 @@ export interface CalendarProps {
   renderHeader?: any;
   autoSelect?: 'firstday' | 'markedDate';
   onMonthChange?: (date: string) => void;
+  style?: ViewStyle;
 }
 
 export interface CalendarRef {
@@ -60,7 +63,7 @@ export interface CalendarRef {
   ) => void;
 }
 
-const _M: any = {};
+const _META: any = {};
 
 function _Calendar(
   {
@@ -76,21 +79,24 @@ function _Calendar(
     autoSelect,
     renderHeader,
     onMonthChange,
+    style,
   }: CalendarProps,
   ref: any
 ) {
   const [id] = useState(Date.now());
+  const daysOfWeek = getDaysOfWeek(firstDay);
   const [currentMonth, setCurrentMonth] = useState<string>('');
   const [months, setMonths] = useState<string[]>([]);
   const [firstIndex, setFirstIndex] = useState(0);
-  const [disableAutoPick, setDisableAutoPick] = useState(true);
   const carousel = useRef<any>(null);
+  const sortMarked = useMemo(() => sortMarkedDates(markedDates), [markedDates]);
   theme = {
     ...defaultTheme,
     ...theme,
   };
 
   useEffect(() => {
+    _META[id] = {};
     initCalendar();
   }, []);
 
@@ -104,12 +110,11 @@ function _Calendar(
     );
     setMonths(_months);
     setCurrentMonth(_month as any);
-    _M[id] = _month;
+    _META[id].month = _month;
+    _META[id].disableAutoSelect = true;
     setFirstIndex(_firstIndex);
     if (_months.length) carousel.current?.snapToItem(_firstIndex, false);
   };
-
-  const daysOfWeek = getDaysOfWeek(firstDay);
 
   const renderItem = ({
     item,
@@ -150,46 +155,42 @@ function _Calendar(
   };
 
   const onDayPress = (day: string | Date) => {
-    const _month = _M[id];
+    const _month = _META[id].month;
     const currentIndex = months.indexOf(_month);
     if (dayjs(day).isBefore(_month, 'month') && currentIndex - 1 >= 0) {
-      setDisableAutoPick(true);
+      _META[id].disableAutoSelect = true;
       setCurrentMonth(months[currentIndex - 1]);
-      _M[id] = months[currentIndex - 1];
+      _META[id].month = months[currentIndex - 1];
       carousel.current?.snapToPrev(true, false);
     } else if (
       dayjs(day).isAfter(_month, 'month') &&
       currentIndex + 1 < months.length
     ) {
-      setDisableAutoPick(true);
+      _META[id].disableAutoSelect = true;
       setCurrentMonth(months[currentIndex + 1]);
-      _M[id] = months[currentIndex + 1];
+      _META[id].month = months[currentIndex + 1];
       carousel.current?.snapToNext(true, false);
     }
     onSelectDate && onSelectDate(day as any, EVENT_SOURCE.DAY_PRESS as any);
   };
 
-  const onScrollIndexChanged = (index: number) => {
-    const date = months[index];
-    setCurrentMonth(date);
-    onMonthChange && onMonthChange(date);
-    _M[id] = date;
-  };
-
-  const onSnapToItem = (index: number) => {
-    if (disableAutoPick) {
-      setDisableAutoPick(false);
-    } else if (autoSelect) {
+  const onScrollIndexChanged = debounce((index: number) => {
+    const month = months[index];
+    setCurrentMonth(month);
+    onMonthChange && onMonthChange(month);
+    if (autoSelect) {
+      if (_META[id].disableAutoSelect) {
+        _META[id].disableAutoSelect = false;
+        return;
+      }
       let date;
       if (autoSelect === 'markedDate') {
-        date = Object.keys(markedDates).find((e) =>
-          dayjs(e).isSame(months[index], 'month')
-        );
+        date = sortMarked.find((e) => dayjs(e).isSame(months[index], 'month'));
       }
       date = date || dayjsToString(dayjs(months[index]).startOf('month'));
       onSelectDate && onSelectDate(date, EVENT_SOURCE.PAGE_SCROLL as any);
     }
-  };
+  }, 200);
 
   const scrollToDate = (
     m: any,
@@ -199,7 +200,7 @@ function _Calendar(
   ) => {
     const index = months.findIndex((e) => dayjs(m).isSame(e, 'month'));
     if (index >= 0) {
-      setDisableAutoPick(true);
+      _META[id].disableAutoSelect = true;
       carousel.current.snapToItem(index, animated, fireCallback, forceScrollTo);
       onSelectDate && onSelectDate(m, null as any);
     }
@@ -250,7 +251,7 @@ function _Calendar(
   }
 
   return (
-    <View style={{ backgroundColor: '#fff' }}>
+    <View style={[{ backgroundColor: '#fff' }, style]}>
       {_renderHeader()}
       <Carousel
         ref={carousel}
@@ -264,7 +265,6 @@ function _Calendar(
         inactiveSlideOpacity={1}
         renderItem={renderItem}
         onScrollIndexChanged={onScrollIndexChanged}
-        onSnapToItem={onSnapToItem}
       />
     </View>
   );

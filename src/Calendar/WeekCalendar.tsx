@@ -1,6 +1,13 @@
 import debounce from 'lodash/debounce';
-import React, { forwardRef, memo, useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, {
+  forwardRef,
+  memo,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { StyleSheet, Text, View, ViewStyle } from 'react-native';
 import Carousel from '../Carousel/Carousel';
 import { dayjs } from '../Utils/time';
 import { wWidth } from '../Utils/utils';
@@ -14,6 +21,7 @@ import {
   getDayName,
   getDaysOfWeek,
   getWeekRange,
+  sortMarkedDates,
 } from './util';
 
 export interface WeekCalendarProps {
@@ -32,6 +40,7 @@ export interface WeekCalendarProps {
   autoSelect?: 'firstday' | 'markedDate';
   onSelectDate: (date: string | Date, source: EVENT_SOURCE) => void;
   onWeekChange?: (date: string) => void;
+  style?: ViewStyle;
 }
 
 export interface WeekCalendarRef {
@@ -61,7 +70,7 @@ export interface WeekCalendarRef {
   ) => void;
 }
 
-const _M: any = {};
+const _META: any = {};
 
 function _WeekCalendar(
   {
@@ -77,21 +86,24 @@ function _WeekCalendar(
     autoSelect,
     renderHeader,
     onWeekChange,
+    style,
   }: WeekCalendarProps,
   ref: any
 ) {
   const [id] = useState(Date.now());
+  const daysOfWeek = getDaysOfWeek(firstDay);
   const [currentWeek, setCurrentWeek] = useState<string>('');
   const [weeks, setWeeks] = useState<string[]>([]);
   const [firstIndex, setFirstIndex] = useState(0);
-  const [disableAutoPick, setDisableAutoPick] = useState(true);
   const carousel = useRef<any>(null);
   theme = {
     ...defaultTheme,
     ...theme,
   };
+  const sortMarked = useMemo(() => sortMarkedDates(markedDates), [markedDates]);
 
   useEffect(() => {
+    _META[id] = {};
     initCalendar();
   }, []);
 
@@ -105,12 +117,11 @@ function _WeekCalendar(
     );
     setWeeks(_weeks);
     setCurrentWeek(_week as any);
-    _M[id] = _week;
+    _META[id].week = _week;
     setFirstIndex(_firstIndex);
+    _META[id].disableAutoSelect = true;
     if (_weeks.length) carousel.current?.snapToItem(_firstIndex, false);
   };
-
-  const daysOfWeek = getDaysOfWeek(firstDay);
 
   const renderItem = ({
     item,
@@ -153,31 +164,27 @@ function _WeekCalendar(
     onSelectDate && onSelectDate(day as any, EVENT_SOURCE.DAY_PRESS as any);
   };
 
-  const onScrollIndexChanged = (index: number) => {
+  const onScrollIndexChanged = debounce((index: number) => {
     const date = weeks[index];
     if (date !== currentWeek) {
       setCurrentWeek(date);
       onWeekChange && onWeekChange(date);
-      _M[id] = date;
-      console.log('onScrollIndexChanged', index);
       if (autoSelect) autoSnap(index);
     }
-  };
+  }, 200);
 
-  const autoSnap = debounce((index) => {
-    if (disableAutoPick) {
-      setDisableAutoPick(false);
+  const autoSnap = (index) => {
+    if (_META[id].disableAutoSelect) {
+      _META[id].disableAutoSelect = false;
       return;
     }
     let date;
     if (autoSelect === 'markedDate') {
-      date = Object.keys(markedDates).find((e) =>
-        dayjs(e).isSame(weeks[index], 'week')
-      );
+      date = sortMarked.find((e) => dayjs(e).isSame(weeks[index], 'week'));
     }
     date = date || dayjsToString(dayjs(weeks[index]).startOf('week'));
     onSelectDate && onSelectDate(date, EVENT_SOURCE.PAGE_SCROLL as any);
-  }, 200);
+  };
 
   const scrollToDate = (
     m: any,
@@ -187,7 +194,7 @@ function _WeekCalendar(
   ) => {
     const index = weeks.findIndex((e) => dayjs(m).isSame(e, 'week'));
     if (index >= 0) {
-      setDisableAutoPick(true);
+      _META[id].disableAutoSelect = true;
       carousel.current.snapToItem(index, animated, fireCallback, forceScrollTo);
       onSelectDate && onSelectDate(m, null as any);
     }
@@ -236,7 +243,7 @@ function _WeekCalendar(
     };
 
   return (
-    <View style={{ backgroundColor: '#fff' }}>
+    <View style={[{ backgroundColor: '#fff' }, style]}>
       {_renderHeader()}
       <Carousel
         ref={carousel}
@@ -303,7 +310,7 @@ const _WeekItem = ({
           alignItems: 'center',
         }}
       >
-        <Text>{item}</Text>
+        <Text>{dayjs(item).format('MM/YYYY')}</Text>
       </View>
     );
   }

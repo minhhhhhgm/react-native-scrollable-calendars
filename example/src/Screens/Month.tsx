@@ -7,7 +7,7 @@ import {
 } from 'react-native-scrollable-calendars';
 
 export default function Month() {
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState('2021-08-28');
   const [month, setMonth] = useState(new Date().toISOString());
   const ref = useRef<CalendarRef>(null);
 
@@ -41,9 +41,17 @@ export default function Month() {
       </View>
       <Calendar
         ref={ref}
-        autoSelect="firstday"
+        autoSelect="markedDate"
         markedDates={{
+          '2021-08-25': {
+            marked: true,
+            type: 'dot',
+          },
           '2021-08-22': {
+            marked: true,
+            type: 'dot',
+          },
+          '2021-08-02': {
             marked: true,
             type: 'dot',
           },

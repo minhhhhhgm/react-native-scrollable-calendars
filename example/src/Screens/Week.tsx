@@ -41,12 +41,15 @@ export default function Month() {
       </View>
       <WeekCalendar
         ref={ref}
-        autoSelect="firstday"
+        autoSelect="markedDate"
         markedDates={{
-          '2021-08-22': {
+          '2021-08-28': {
             marked: true,
             type: 'dot',
-            background: 'blue',
+          },
+          '2021-08-24': {
+            marked: true,
+            type: 'dot',
           },
         }}
         selected={date}

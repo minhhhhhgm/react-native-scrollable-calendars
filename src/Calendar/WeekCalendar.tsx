@@ -42,6 +42,7 @@ export interface WeekCalendarProps {
   onWeekChange?: (date: string) => void;
   style?: ViewStyle | ViewStyle[];
   dayNames?: string[];
+  maxItemRender?: number;
 }
 
 export interface WeekCalendarRef {
@@ -89,6 +90,7 @@ function _WeekCalendar(
     onWeekChange,
     style,
     dayNames,
+    maxItemRender = 2,
   }: WeekCalendarProps,
   ref: any
 ) {
@@ -125,26 +127,35 @@ function _WeekCalendar(
     if (_weeks.length) carousel.current?.snapToItem(_firstIndex, false);
   };
 
-  const renderItem = ({
-    item,
-    index,
-  }: {
-    item: string | Date;
-    index: number;
-  }) => {
-    return (
-      <WeekItem
-        calendarWidth={calendarWidth}
-        currentWeek={currentWeek}
-        firstDay={firstDay}
-        index={index}
-        item={item}
-        markedDates={markedDates}
-        theme={theme}
-        onDayPress={onDayPress}
-        selected={selected}
-      />
-    );
+  const renderItem = ({ item }: { item: string | Date }) => {
+    const needRender =
+      Math.abs(dayjs(currentWeek).diff(item, 'week')) <= maxItemRender;
+
+    if (needRender) {
+      return (
+        <WeekItem
+          calendarWidth={calendarWidth}
+          firstDay={firstDay}
+          item={item}
+          markedDates={markedDates}
+          theme={theme}
+          onDayPress={onDayPress}
+          selected={selected}
+        />
+      );
+    } else {
+      return (
+        <View
+          style={{
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: 42,
+          }}
+        >
+          <Text>{dayjs(item).format('MM/YYYY')}</Text>
+        </View>
+      );
+    }
   };
 
   const _renderHeader = () => {
@@ -271,8 +282,6 @@ export const WeekCalendar = forwardRef(_WeekCalendar);
 const _WeekItem = ({
   // @ts-ignore
   item, // @ts-ignore
-  currentWeek, // @ts-ignore
-  index, // @ts-ignore
   theme, // @ts-ignore
   markedDates, // @ts-ignore
   firstDay, // @ts-ignore
@@ -280,52 +289,35 @@ const _WeekItem = ({
   onDayPress, // @ts-ignore
   calendarWidth,
 }) => {
-  const needRender = Math.abs(dayjs(currentWeek).diff(item, 'week')) <= 1;
-  if (needRender) {
-    const selectedString = selected ? dayjsToString(dayjs(selected)) : '';
-    let dates = getDatesOfWeek(item as any, firstDay);
-    return (
-      <View
-        style={{
-          flexDirection: 'row',
-          flexWrap: 'wrap',
-          justifyContent: 'space-between',
-        }}
-      >
-        {dates.map((day) => (
-          <Day
-            parent="week"
-            key={day}
-            day={day}
-            width={calendarWidth / 7 - 1}
-            isSelected={selectedString === day}
-            marking={markedDates[day]}
-            theme={theme}
-            onPress={onDayPress}
-          />
-        ))}
-      </View>
-    );
-  } else {
-    return (
-      <View
-        style={{
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: 42,
-        }}
-      >
-        <Text>{dayjs(item).format('MM/YYYY')}</Text>
-      </View>
-    );
-  }
+  const selectedString = selected ? dayjsToString(dayjs(selected)) : '';
+  let dates = getDatesOfWeek(item as any, firstDay);
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+      }}
+    >
+      {dates.map((day) => (
+        <Day
+          parent="week"
+          key={day}
+          day={day}
+          width={calendarWidth / 7 - 1}
+          isSelected={selectedString === day}
+          marking={markedDates[day]}
+          theme={theme}
+          onPress={onDayPress}
+        />
+      ))}
+    </View>
+  );
 };
 
 const WeekItem = memo(_WeekItem, (prevProps, props) => {
   return compareProps(prevProps, props, [
     'item',
-    'currentWeek',
-    'index',
     'theme',
     'markedDates',
     'firstDay',

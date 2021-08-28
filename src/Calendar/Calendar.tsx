@@ -35,6 +35,7 @@ export interface CalendarProps {
   onMonthChange?: (date: string) => void;
   style?: ViewStyle | ViewStyle[];
   dayNames?: string[];
+  maxItemRender?: number;
 }
 
 export interface CalendarRef {
@@ -81,6 +82,7 @@ function _Calendar(
     onMonthChange,
     style,
     dayNames,
+    maxItemRender = 1,
   }: CalendarProps,
   ref: any
 ) {
@@ -91,6 +93,7 @@ function _Calendar(
   const [firstIndex, setFirstIndex] = useState(0);
   const carousel = useRef<any>(null);
   const sortMarked = useMemo(() => sortMarkedDates(markedDates), [markedDates]);
+  const [rendered, setRendered] = useState({});
   theme = {
     ...defaultTheme,
     ...theme,
@@ -117,27 +120,37 @@ function _Calendar(
     if (_months.length) carousel.current?.snapToItem(_firstIndex, false);
   };
 
-  const renderItem = ({
-    item,
-    index,
-  }: {
-    item: string | Date;
-    index: number;
-  }) => {
-    return (
-      <WeekItem
-        calendarWidth={calendarWidth}
-        currentMonth={currentMonth}
-        months={months}
-        firstDay={firstDay}
-        index={index}
-        item={item}
-        markedDates={markedDates}
-        theme={theme}
-        onDayPress={onDayPress}
-        selected={selected}
-      />
-    );
+  const renderItem = ({ item }: { item: string | Date }) => {
+    const needRender =
+      rendered[item as any] ||
+      Math.abs(dayjs(currentMonth).diff(item, 'month')) <= maxItemRender;
+
+    if (needRender) {
+      return (
+        <MonthItem
+          calendarWidth={calendarWidth}
+          currentMonth={currentMonth}
+          months={months}
+          item={item}
+          markedDates={markedDates}
+          theme={theme}
+          onDayPress={onDayPress}
+          selected={selected}
+        />
+      );
+    } else {
+      return (
+        <View
+          style={{
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: 200,
+          }}
+        >
+          <Text style={styles.monthPlaceholder}>{item}</Text>
+        </View>
+      );
+    }
   };
 
   const _renderHeader = () => {
@@ -181,6 +194,8 @@ function _Calendar(
   const onScrollIndexChanged = debounce((index: number) => {
     const month = months[index];
     _META[id].month = month;
+    rendered[month] = true;
+    setRendered({ ...rendered });
     setCurrentMonth(month);
     onMonthChange && onMonthChange(month);
 
@@ -278,74 +293,54 @@ function _Calendar(
 
 export const Calendar = forwardRef(_Calendar);
 
-const _WeekItem = ({
+const _MonthItem = ({
   // @ts-ignore
   item, // @ts-ignore
   currentMonth, // @ts-ignore
-  index, // @ts-ignore
   theme, // @ts-ignore
   markedDates, // @ts-ignore
-  firstDay, // @ts-ignore
   selected, // @ts-ignore
   onDayPress, // @ts-ignore
   calendarWidth, // @ts-ignore
   months,
 }) => {
-  const needRender = Math.abs(dayjs(currentMonth).diff(item, 'month')) <= 1;
-
-  if (needRender) {
-    const selectedString = selected ? dayjsToString(dayjs(selected)) : '';
-    let daysOfMonth = getDaysInMonth(item);
-    const isCurrent = dayjs(currentMonth).isSame(item, 'month');
-    if (!isCurrent) daysOfMonth = daysOfMonth.slice(0, 7 * 5);
-    return (
-      <View
-        style={{
-          flexDirection: 'row',
-          flexWrap: 'wrap',
-          justifyContent: 'space-between',
-        }}
-      >
-        {daysOfMonth.map((day) => (
-          <Day
-            parent="month"
-            key={day}
-            day={day}
-            month={item as any}
-            width={calendarWidth / 7 - 1}
-            isSelected={selectedString === day}
-            marking={markedDates[day]}
-            theme={theme}
-            onPress={onDayPress}
-            minMonth={months[0]}
-            maxMonth={months[months.length - 1]}
-          />
-        ))}
-      </View>
-    );
-  } else {
-    return (
-      <View
-        style={{
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: 200,
-        }}
-      >
-        <Text style={styles.monthPlaceholder}>{item}</Text>
-      </View>
-    );
-  }
+  const selectedString = selected ? dayjsToString(dayjs(selected)) : '';
+  let daysOfMonth = getDaysInMonth(item);
+  const isCurrent = dayjs(currentMonth).isSame(item, 'month');
+  if (!isCurrent) daysOfMonth = daysOfMonth.slice(0, 7 * 5);
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+      }}
+    >
+      {daysOfMonth.map((day) => (
+        <Day
+          parent="month"
+          key={day}
+          day={day}
+          month={item as any}
+          width={calendarWidth / 7 - 1}
+          isSelected={selectedString === day}
+          marking={markedDates[day]}
+          theme={theme}
+          onPress={onDayPress}
+          minMonth={months[0]}
+          maxMonth={months[months.length - 1]}
+        />
+      ))}
+    </View>
+  );
 };
 
-const WeekItem = memo(_WeekItem, (prevProps, props) => {
+const MonthItem = memo(_MonthItem, (prevProps, props) => {
   return compareProps(prevProps, props, [
     'item',
-    'currentWeek',
-    'index',
+    'currentMonth',
     'theme',
     'markedDates',
-    'firstDay',
     'selected',
     'onDayPress',
     'calendarWidth',
@@ -365,5 +360,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#000',
   },
-  monthPlaceholder: { fontSize: 20, fontWeight: '500' },
+  monthPlaceholder: { fontSize: 24, fontWeight: '500' },
 });

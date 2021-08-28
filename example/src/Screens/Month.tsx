@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Button, Text, View } from 'react-native';
+import { ActivityIndicator, Button, Text, View } from 'react-native';
 import {
   CalendarRef,
   Calendar,
@@ -68,6 +68,7 @@ export default function Month() {
         onMonthChange={(m) => {
           setMonth(m as any);
         }}
+        renderLoading={() => <ActivityIndicator color="black" />}
       />
     </View>
   );

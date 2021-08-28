@@ -36,6 +36,7 @@ export interface CalendarProps {
   style?: ViewStyle | ViewStyle[];
   dayNames?: string[];
   maxItemRender?: number;
+  renderLoading?: any;
 }
 
 export interface CalendarRef {
@@ -83,6 +84,7 @@ function _Calendar(
     style,
     dayNames,
     maxItemRender = 1,
+    renderLoading,
   }: CalendarProps,
   ref: any
 ) {
@@ -94,6 +96,7 @@ function _Calendar(
   const carousel = useRef<any>(null);
   const sortMarked = useMemo(() => sortMarkedDates(markedDates), [markedDates]);
   const [rendered, setRendered] = useState({});
+  const [inited, setInited] = useState(false);
   theme = {
     ...defaultTheme,
     ...theme,
@@ -118,6 +121,13 @@ function _Calendar(
     _META[id].disableAutoSelect = true;
     setFirstIndex(_firstIndex);
     if (_months.length) carousel.current?.snapToItem(_firstIndex, false);
+    setInited(true);
+  };
+
+  const caculateMonthHeight = (d) => {
+    return Math.abs(dayjs(d).startOf('month').diff(dayjs(d).endOf('month'))) > 5
+      ? 242
+      : 200;
   };
 
   const renderItem = ({ item }: { item: string | Date }) => {
@@ -274,19 +284,38 @@ function _Calendar(
   return (
     <View style={[{ backgroundColor: '#fff' }, style]}>
       {_renderHeader()}
-      <Carousel
-        ref={carousel}
-        vertical={false}
-        data={months}
-        keyExtractor={(e) => e}
-        firstItem={firstIndex}
-        itemWidth={calendarWidth}
-        sliderWidth={calendarWidth}
-        inactiveSlideScale={1}
-        inactiveSlideOpacity={1}
-        renderItem={renderItem}
-        onScrollIndexChanged={onScrollIndexChanged}
-      />
+
+      {inited ? (
+        <Carousel
+          ref={carousel}
+          vertical={false}
+          data={months}
+          keyExtractor={(e) => e}
+          firstItem={firstIndex}
+          itemWidth={calendarWidth}
+          sliderWidth={calendarWidth}
+          inactiveSlideScale={1}
+          inactiveSlideOpacity={1}
+          renderItem={renderItem}
+          onScrollIndexChanged={onScrollIndexChanged}
+        />
+      ) : (
+        <View
+          style={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: caculateMonthHeight(selected),
+          }}
+        >
+          {renderLoading ? (
+            renderLoading()
+          ) : (
+            <Text style={styles.monthPlaceholder}>
+              {dayjs(selected).format('MM-YYYY')}
+            </Text>
+          )}
+        </View>
+      )}
     </View>
   );
 }

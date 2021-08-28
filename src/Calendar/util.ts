@@ -50,7 +50,10 @@ export const getWeekRange = (
   }
 };
 
-export const getDayName = (day: number) => (day === 0 ? 'CN' : 'T' + (day + 1));
+const defaultDayNames = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+
+export const getDayName = (day: number, dayNames = defaultDayNames) =>
+  dayNames[day];
 
 export const getDaysOfWeek = (firstDay: number) => {
   const days = [];

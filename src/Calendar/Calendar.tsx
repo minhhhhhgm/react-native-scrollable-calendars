@@ -30,11 +30,11 @@ export interface CalendarProps {
   markedDates?: {
     [x: string]: Marking;
   };
-  renderDayNames?: any;
   renderHeader?: any;
   autoSelect?: 'firstday' | 'markedDate';
   onMonthChange?: (date: string) => void;
   style?: ViewStyle | ViewStyle[];
+  dayNames?: string[];
 }
 
 export interface CalendarRef {
@@ -80,6 +80,7 @@ function _Calendar(
     renderHeader,
     onMonthChange,
     style,
+    dayNames,
   }: CalendarProps,
   ref: any
 ) {
@@ -146,7 +147,9 @@ function _Calendar(
         {daysOfWeek.map((day) => {
           return (
             <View key={day} style={{ flex: 1 }}>
-              <Text style={[styles.headerItem]}>{getDayName(day)}</Text>
+              <Text style={[styles.headerItem]}>
+                {getDayName(day, dayNames)}
+              </Text>
             </View>
           );
         })}

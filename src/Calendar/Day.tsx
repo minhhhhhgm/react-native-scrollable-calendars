@@ -1,5 +1,6 @@
 import isNil from 'lodash/isNil';
 import omitBy from 'lodash/omitBy';
+import omit from 'lodash/omit';
 import React, { memo } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { dayjs } from '../Utils/time';
@@ -77,7 +78,9 @@ function Day({
             alignItems: 'center',
             opacity: parent === 'week' || inMonth || isSelected ? 1 : 0.35,
           },
-          showAsSelected ? theme.selected : {},
+          showAsSelected
+            ? { backgroundColor: theme?.selected?.backgroundColor }
+            : { borderRadius: 16 },
           marking
             ? omitBy(
                 {
@@ -86,13 +89,13 @@ function Day({
                 },
                 isNil
               )
-            : {},
+            : { borderRadius: 16 },
         ]}
       >
         <Text
           style={[
-            { textAlign: 'center', fontSize: 16 },
-            showAsSelected ? theme.selected : {},
+            { textAlign: 'center', fontSize: 16, color: '#000' },
+            omit(showAsSelected && theme.selected, 'backgroundColor'),
           ]}
         >
           {dayInMonth}

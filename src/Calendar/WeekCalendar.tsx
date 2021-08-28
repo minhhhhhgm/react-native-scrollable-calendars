@@ -41,6 +41,7 @@ export interface WeekCalendarProps {
   onSelectDate: (date: string | Date, source: EVENT_SOURCE) => void;
   onWeekChange?: (date: string) => void;
   style?: ViewStyle | ViewStyle[];
+  dayNames?: string[];
 }
 
 export interface WeekCalendarRef {
@@ -87,6 +88,7 @@ function _WeekCalendar(
     renderHeader,
     onWeekChange,
     style,
+    dayNames,
   }: WeekCalendarProps,
   ref: any
 ) {
@@ -152,7 +154,9 @@ function _WeekCalendar(
         {daysOfWeek.map((day) => {
           return (
             <View key={day} style={{ flex: 1 }}>
-              <Text style={[styles.headerItem]}>{getDayName(day)}</Text>
+              <Text style={[styles.headerItem]}>
+                {getDayName(day, dayNames)}
+              </Text>
             </View>
           );
         })}
@@ -308,6 +312,7 @@ const _WeekItem = ({
         style={{
           justifyContent: 'center',
           alignItems: 'center',
+          height: 42,
         }}
       >
         <Text>{dayjs(item).format('MM/YYYY')}</Text>

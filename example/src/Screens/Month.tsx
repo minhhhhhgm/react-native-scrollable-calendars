@@ -4,7 +4,25 @@ import {
   CalendarRef,
   Calendar,
   dayjs,
+  Marking,
 } from 'react-native-scrollable-calendars';
+
+const mkds: { [x: string]: Marking } = {};
+
+const randomColor = (number) =>
+  ['blue', 'green', 'red'][Math.floor(Math.random() * number) % 3];
+
+for (let index = 0; index < 200; index++) {
+  if (Math.random() > 0.5) {
+    mkds[dayjs().add(index, 'day').format('YYYY-MM-DD')] = {
+      type: 'dot',
+      marked: true,
+      color: randomColor(index),
+      selectedColor: randomColor(index),
+      background: randomColor(index),
+    };
+  }
+}
 
 export default function Month() {
   const [date, setDate] = useState('2021-08-28');
@@ -42,20 +60,7 @@ export default function Month() {
       <Calendar
         ref={ref}
         autoSelect="markedDate"
-        markedDates={{
-          '2021-08-25': {
-            marked: true,
-            type: 'dot',
-          },
-          '2021-08-22': {
-            marked: true,
-            type: 'dot',
-          },
-          '2021-08-02': {
-            marked: true,
-            type: 'dot',
-          },
-        }}
+        markedDates={mkds}
         selected={date}
         onSelectDate={(value, source) => {
           setDate(value as any);

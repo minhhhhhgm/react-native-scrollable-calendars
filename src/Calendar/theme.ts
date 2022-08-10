@@ -5,6 +5,9 @@ export interface CalendarTheme {
     color: string;
     backgroundColor: string;
   };
+  day?: {
+    color?: string;
+  };
   dot?: {
     color: string;
     selectedColor: string;

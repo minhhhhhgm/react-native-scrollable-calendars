@@ -166,11 +166,11 @@ function _Calendar(
   const _renderHeader = () => {
     if (renderHeader) return renderHeader();
     return (
-      <View style={styles.header}>
+      <View style={[styles.header, theme.header]}>
         {daysOfWeek.map((day) => {
           return (
             <View key={day} style={{ flex: 1 }}>
-              <Text style={[styles.headerItem]}>
+              <Text style={[styles.headerItem, theme.dayName]}>
                 {getDayName(day, dayNames)}
               </Text>
             </View>
@@ -388,6 +388,7 @@ const styles = StyleSheet.create({
   headerItem: {
     textAlign: 'center',
     color: '#000',
+    fontWeight: '500',
   },
   monthPlaceholder: { fontSize: 24, fontWeight: '500' },
 });

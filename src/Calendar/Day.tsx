@@ -95,6 +95,7 @@ function Day({
         <Text
           style={[
             { textAlign: 'center', fontSize: 16, color: '#000' },
+            theme.day,
             omit(showAsSelected && theme.selected, 'backgroundColor'),
           ]}
         >

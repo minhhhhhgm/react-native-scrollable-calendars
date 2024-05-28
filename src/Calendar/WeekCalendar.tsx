@@ -7,7 +7,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View, ViewStyle,TextStyle } from 'react-native';
 import Carousel from '../Carousel/Carousel';
 import { dayjs } from '../Utils/time';
 import { wWidth } from '../Utils/utils';
@@ -43,6 +43,7 @@ export interface WeekCalendarProps {
   style?: ViewStyle | ViewStyle[];
   dayNames?: string[];
   maxItemRender?: number;
+  headerStyle?:TextStyle
 }
 
 export interface WeekCalendarRef {
@@ -91,6 +92,7 @@ function _WeekCalendar(
     style,
     dayNames,
     maxItemRender = 2,
+    headerStyle
   }: WeekCalendarProps,
   ref: any
 ) {
@@ -155,7 +157,8 @@ function _WeekCalendar(
             height: 42,
           }}
         >
-          <Text>{dayjs(item).format('MM/YYYY')}</Text>
+          {/* <Text>{dayjs(item).format('MM/YYYY')}</Text> */}
+          <ActivityIndicator/>
         </View>
       );
     }
@@ -168,7 +171,7 @@ function _WeekCalendar(
         {daysOfWeek.map((day) => {
           return (
             <View key={day} style={{ flex: 1 }}>
-              <Text style={[styles.headerItem]}>
+              <Text style={[styles.headerItem,headerStyle]}>
                 {getDayName(day, dayNames)}
               </Text>
             </View>

@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import 'dayjs/locale/vi';
+import 'dayjs/locale/ja';
 import isBetween from 'dayjs/plugin/isBetween';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
@@ -9,6 +9,6 @@ dayjs.extend(customParseFormat);
 dayjs.extend(isBetween);
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
-dayjs.locale('vi');
+dayjs.locale('ja');
 
 export { dayjs };

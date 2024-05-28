@@ -15,6 +15,7 @@ type DayProps = {
   onPress?: any;
   marking?: Marking;
   theme?: CalendarTheme;
+  isToday?:boolean
 } & (DayMonthProps | DayWeekProps);
 
 interface DayMonthProps {
@@ -39,11 +40,14 @@ function Day({
   minMonth, // @ts-ignore
   maxMonth,
   parent,
+  isToday
+
 }: DayProps) {
   const dayInMonth = dayjs(day).date();
 
   let inMonth, inPrevMonth, inNextMonth, hasLeft, hasRight;
-
+  // console.log(dayjs().format('DD-MM-YYYY').toString()==day.toString());
+    
   if (parent === 'month') {
     inMonth = dayjs(day).isSame(month, 'month');
     inPrevMonth = !inMonth && dayjs(day).isBefore(month, 'month');
@@ -64,43 +68,53 @@ function Day({
         width,
         justifyContent: 'center',
         alignItems: 'center',
-        marginVertical: 4,
+        marginVertical: 2,
+        // borderRadius: 19,
+        // backgroundColor:'red'
       }}
       onPress={() => onPress && onPress(day)}
     >
       <View
         style={[
           {
-            height: 32,
-            width: 32,
-            borderRadius: 16,
+            height: 40,
+            width: 40,
+            borderRadius: 19,
             justifyContent: 'center',
             alignItems: 'center',
-            opacity: parent === 'week' || inMonth || isSelected ? 1 : 0.35,
+            backgroundColor: showAsSelected ? isToday ? '#16AB89' : '#D9F8F1' : 'white'
+            // opacity: parent === 'week' || inMonth || isSelected ? 1 : 0.35,
           },
-          showAsSelected
-            ? { backgroundColor: theme?.selected?.backgroundColor }
-            : { borderRadius: 16 },
-          marking
-            ? omitBy(
-                {
-                  backgroundColor:
-                    marking.background || theme.marked?.background,
-                },
-                isNil
-              )
-            : { borderRadius: 16 },
+          // showAsSelected
+          //   ? { 
+          //     // backgroundColor: isToday? '#16AB89' :theme?.selected?.backgroundColor ,
+          //     backgroundColor: showAsSelected ? isToday ? '#16AB89' : '#D9F8F1' : 'white' 
+          //   }
+          //   : {  },
+          // marking
+          //   ? omitBy(
+          //       {
+          //         backgroundColor:
+          //           marking.background || theme.marked?.background,
+          //       },
+          //       isNil
+          //     )
+          //   : {  },
         ]}
       >
         <Text
           style={[
-            { textAlign: 'center', fontSize: 16, color: '#000' },
-            theme.day,
-            omit(showAsSelected && theme.selected, 'backgroundColor'),
+            { textAlign: 'center', fontSize: 16, 
+            color: showAsSelected ? !isToday ? '#16AB89' : 'white' : day.toString() === dayjs().format('YYYY-MM-DD').toString() ? '#16AB89' : '#000000' ,
+            // color: showAsSelected ? 'red' :'#000'
+           },
+            // theme.day,
+            // omit(showAsSelected && theme.selected, 'backgroundColor'),
           ]}
         >
           {dayInMonth}
         </Text>
+       
         {marking ? (
           <View
             style={{ position: 'absolute', bottom: 2, flexDirection: 'row' }}

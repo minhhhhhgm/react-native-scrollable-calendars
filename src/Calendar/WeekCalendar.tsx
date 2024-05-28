@@ -99,6 +99,7 @@ function _WeekCalendar(
   const [currentWeek, setCurrentWeek] = useState<string>('');
   const [weeks, setWeeks] = useState<string[]>([]);
   const [firstIndex, setFirstIndex] = useState(0);
+  const [isTodayT, setIsToday] = useState<boolean>(false);
   const carousel = useRef<any>(null);
   theme = {
     ...defaultTheme,
@@ -141,6 +142,8 @@ function _WeekCalendar(
           theme={theme}
           onDayPress={onDayPress}
           selected={selected}
+          isToday={isTodayT}
+          
         />
       );
     } else {
@@ -175,7 +178,12 @@ function _WeekCalendar(
     );
   };
 
-  const onDayPress = (day: string | Date) => {
+  const onDayPress = (day: string | Date) => {   
+    if (day.toString() === dayjs().format('YYYY-MM-DD').toString()) {
+      setIsToday(true)
+  } else {
+      setIsToday(false)
+  }
     onSelectDate && onSelectDate(day as any, EVENT_SOURCE.DAY_PRESS as any);
   };
 
@@ -288,6 +296,7 @@ const _WeekItem = ({
   selected, // @ts-ignore
   onDayPress, // @ts-ignore
   calendarWidth,
+  isToday
 }) => {
   const selectedString = selected ? dayjsToString(dayjs(selected)) : '';
   let dates = getDatesOfWeek(item as any, firstDay);
@@ -309,6 +318,7 @@ const _WeekItem = ({
           marking={markedDates[day]}
           theme={theme}
           onPress={onDayPress}
+          isToday={isToday}
         />
       ))}
     </View>
@@ -324,6 +334,7 @@ const WeekItem = memo(_WeekItem, (prevProps, props) => {
     'selected',
     'onDayPress',
     'calendarWidth',
+    'isToday'
   ]);
 });
 

@@ -1,6 +1,6 @@
 {
-  "name": "react-native-scrollable-calendars",
-  "version": "0.3.0",
+  "name": "react-native-scrollable-calendars-jp",
+  "version": "0.0.1",
   "description": "Calendar component for react-native",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -88,7 +88,7 @@
   "husky": {
     "hooks": {
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
-      "pre-commit": "yarn lint && yarn typescript"
+      "pre-commit": "npm run lint"
     }
   },
   "commitlint": {

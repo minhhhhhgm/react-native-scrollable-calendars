@@ -2,7 +2,7 @@ import { TextStyle, ViewStyle } from 'react-native';
 
 export interface CalendarTheme {
   selected?: {
-    color: string;
+    color?: string;
     backgroundColor: string;
   };
   day?: {

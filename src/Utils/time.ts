@@ -12,3 +12,4 @@ dayjs.extend(isSameOrAfter);
 dayjs.locale('ja');
 
 export { dayjs };
+

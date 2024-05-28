@@ -50,7 +50,7 @@ export const getWeekRange = (
   }
 };
 
-const defaultDayNames = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+const defaultDayNames = [];
 
 export const getDayName = (day: number, dayNames = defaultDayNames) =>
   dayNames[day];

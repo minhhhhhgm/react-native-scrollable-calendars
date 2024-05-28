@@ -80,7 +80,7 @@ function _WeekCalendar(
     minDate,
     maxDate,
     selected,
-    firstDay = 1,
+    firstDay = 0,
     calendarWidth = wWidth,
     onSelectDate,
     markedDates = {},

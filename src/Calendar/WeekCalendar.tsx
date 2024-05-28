@@ -77,7 +77,7 @@ const _META: any = {};
 
 function _WeekCalendar(
   {
-    passRange = 12 * 4,
+    passRange = 24 * 24,
     minDate,
     maxDate,
     selected,

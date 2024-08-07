@@ -1,6 +1,6 @@
 {
   "name": "react-native-scrollable-calendars-jp",
-  "version": "0.0.4",
+  "version": "0.0.6",
   "description": "Calendar component for react-native",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",

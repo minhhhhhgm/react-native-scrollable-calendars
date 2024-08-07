@@ -271,19 +271,22 @@ function _WeekCalendar(
   return (
     <View style={[{ backgroundColor: '#fff' }, style]}>
       {_renderHeader()}
-      <Carousel
-        ref={carousel}
-        vertical={false}
-        data={weeks}
-        keyExtractor={(e) => e}
-        firstItem={firstIndex}
-        itemWidth={calendarWidth}
-        sliderWidth={calendarWidth}
-        inactiveSlideScale={1}
-        inactiveSlideOpacity={1}
-        renderItem={renderItem}
-        onScrollIndexChanged={onScrollIndexChanged}
-      />
+      {
+        weeks.length !== 0 ? 
+        <Carousel
+          ref={carousel}
+          vertical={false}
+          data={weeks}
+          keyExtractor={(e) => e}
+          firstItem={firstIndex}
+          itemWidth={calendarWidth}
+          sliderWidth={calendarWidth}
+          inactiveSlideScale={1}
+          inactiveSlideOpacity={1}
+          renderItem={renderItem}
+          onScrollIndexChanged={onScrollIndexChanged}
+        />: <ActivityIndicator/>
+      }
     </View>
   );
 }
